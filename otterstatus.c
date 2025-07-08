@@ -17,7 +17,7 @@
 #define MIXER_DEVICE "/dev/mixer"
 #define MIXER_VOL MIXER_READ(SOUND_MIXER_VOLUME)
 // the coolest macro in the game bruh
-#define AVG_LR(x) ((((x) & 0xFF) + (((x) >> 8) & 0xFF)) >> 1)
+#define AVG_LR(x) ((((x) & 0xFF) + ((x) >> 8)) >> 1)
 
 Display *dpy = NULL;
 struct timespec toSleep;
@@ -57,6 +57,7 @@ void battery(void)
 	size_t len = sizeof(result);
 	if(sysctlbyname("hw.acpi.battery.life", &result, &len, NULL, 0) == -1) return;
 
+	if(result < 0) return;
 	sprintf(buf, "%s BAT %3d%%", buf, result);
 }
 
