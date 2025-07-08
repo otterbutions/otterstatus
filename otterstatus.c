@@ -17,7 +17,6 @@
 #define MIXER_DEVICE "/dev/mixer"
 #define MIXER_VOL MIXER_READ(SOUND_MIXER_VOLUME)
 // the coolest macro in the game bruh
-#define AVG_LR(x) ((((x) & 0xFF) + ((x) >> 8)) >> 1)
 
 Display *dpy = NULL;
 struct timespec toSleep;
@@ -46,7 +45,7 @@ void volume(void)
 		return;
 	}
 
-	sprintf(buf, "%s VOL %3d%%", buf, AVG_LR(v));
+	sprintf(buf, "%s VOL %3d%%", buf, v & 0xFF);
 	close(afd);
 }
 
