@@ -11,14 +11,16 @@
 #include <sys/soundcard.h>
 #include <sys/sysctl.h>
 
+#include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 
 // volume defines
 #define MIXER_DEVICE "/dev/mixer"
 #define MIXER_VOL MIXER_READ(SOUND_MIXER_VOLUME)
 // the coolest macro in the game bruh
+#define KEYMAP_GROUP XGetAtomName(dpy, desc->names->groups[state.group])
 
-Display *dpy = NULL;
+Display *dpy;
 struct timespec toSleep;
 
 char buf[48];
@@ -60,6 +62,18 @@ void battery(void)
 	sprintf(buf, "%s BAT %3d%%", buf, result);
 }
 
+void keymap(void)
+{
+	char result[4];
+	XkbStateRec state;
+
+	if(XkbGetState(dpy, XkbUseCoreKbd, &state)) return;
+	XkbDescPtr desc = XkbGetKeyboard(dpy, XkbAllComponentsMask, XkbUseCoreKbd);
+
+	snprintf(result, 3, "%s", KEYMAP_GROUP);
+  sprintf(buf, "%s [%s]", buf, result); 
+}
+
 void updatestatus(void)
 {
 	Window win = DefaultRootWindow(dpy);
@@ -70,6 +84,7 @@ void updatestatus(void)
 	{
 		volume();
 		battery();
+		keymap();
 		dateTime();
 		
 		XStoreName(dpy, win, buf);
